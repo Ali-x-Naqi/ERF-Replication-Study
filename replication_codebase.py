@@ -485,7 +485,7 @@ def main():
     files = {
         'README.md': 'Replication report',
         'replication_codebase.py': 'Full codebase',
-        'ETASR_9148_2.pdf': 'Original research paper',
+        'ETASR_9148_2.pdf': 'Original research paper (Included in submission package)',
         'appstore_7197_apps.csv': 'Dataset (7,197 rows)'
     }
     for f, desc in files.items():
