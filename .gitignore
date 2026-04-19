@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Generated reports (auto-created by running the script)
+Replication_Report.md
+
+# OS
+.DS_Store
+Thumbs.db
