@@ -24,8 +24,137 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
 from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, confusion_matrix, classification_report)
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
+
+# Plot style
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.size'] = 11
+
+
+def generate_plots(results):
+    """Generate plots replicating Figures 3-6 from the paper."""
+    
+    os.makedirs('plots', exist_ok=True)
+    colors = ['#2196F3', '#4CAF50', '#FF9800']  # Blue, Green, Orange
+    model_names = list(results.keys())
+    short_names = ['LR', 'RF (ERF)', 'XGBoost']
+
+    # ── Fig 1: Confusion Matrices (like Fig. 3 in paper) ──
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+    for idx, (name, short) in enumerate(zip(model_names, short_names)):
+        cm = results[name]['CM']
+        total = cm.sum()
+        cm_pct = cm / total * 100
+        labels = np.array([[f"{cm[i][j]}\n({cm_pct[i][j]:.1f}%)" 
+                           for j in range(2)] for i in range(2)])
+        sns.heatmap(cm, annot=labels, fmt='', cmap='Blues', ax=axes[idx],
+                    xticklabels=['Low (<4)', 'High (>=4)'],
+                    yticklabels=['Low (<4)', 'High (>=4)'],
+                    cbar_kws={'shrink': 0.8})
+        axes[idx].set_title(f'Confusion Matrix: {short}', fontweight='bold', fontsize=12)
+        axes[idx].set_ylabel('Actual Label')
+        axes[idx].set_xlabel('Predicted Label')
+    plt.tight_layout()
+    plt.savefig('plots/fig1_confusion_matrices.png', dpi=150, bbox_inches='tight')
+    plt.close()
+    print("      -> plots/fig1_confusion_matrices.png")
+
+    # ── Fig 2: Performance Metrics Bar Chart (like Table I visual) ──
+    metrics = ['Accuracy', 'Precision', 'Recall', 'F1-Score']
+    x = np.arange(len(metrics))
+    width = 0.25
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for idx, (name, short, color) in enumerate(zip(model_names, short_names, colors)):
+        values = [results[name][m] for m in metrics]
+        bars = ax.bar(x + idx * width, values, width, label=short, color=color, edgecolor='white')
+        for bar, val in zip(bars, values):
+            ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.01,
+                    f'{val:.2f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+
+    ax.set_xlabel('Metric', fontsize=12)
+    ax.set_ylabel('Score', fontsize=12)
+    ax.set_title('Performance of Different Models (Replicated)', fontweight='bold', fontsize=14)
+    ax.set_xticks(x + width)
+    ax.set_xticklabels(metrics)
+    ax.set_ylim(0, 1.15)
+    ax.legend(loc='upper right', fontsize=11)
+    ax.grid(axis='y', alpha=0.3)
+    plt.tight_layout()
+    plt.savefig('plots/fig2_performance_metrics.png', dpi=150, bbox_inches='tight')
+    plt.close()
+    print("      -> plots/fig2_performance_metrics.png")
+
+    # ── Fig 3: Paper vs Replicated Comparison (like Fig. 5/6 style) ──
+    paper = {
+        'Logistic Regression': {'Accuracy': 0.72, 'Precision': 0.68, 'Recall': 0.70, 'F1-Score': 0.69},
+        'Random Forest (ERF)': {'Accuracy': 0.85, 'Precision': 0.82, 'Recall': 0.84, 'F1-Score': 0.83},
+        'XGBoost': {'Accuracy': 0.85, 'Precision': 0.85, 'Recall': 0.87, 'F1-Score': 0.83}
+    }
+
+    fig, axes = plt.subplots(1, 4, figsize=(16, 5))
+    for m_idx, metric in enumerate(metrics):
+        ax = axes[m_idx]
+        paper_vals = [paper[n][metric] for n in model_names]
+        our_vals = [results[n][metric] for n in model_names]
+        
+        x_pos = np.arange(len(short_names))
+        bars1 = ax.bar(x_pos - 0.18, paper_vals, 0.35, label='Original Paper', color='#1565C0', edgecolor='white')
+        bars2 = ax.bar(x_pos + 0.18, our_vals, 0.35, label='Our Replication', color='#FF7043', edgecolor='white')
+        
+        for bar, val in zip(bars1, paper_vals):
+            ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.01,
+                    f'{val:.2f}', ha='center', va='bottom', fontsize=8)
+        for bar, val in zip(bars2, our_vals):
+            ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.01,
+                    f'{val:.2f}', ha='center', va='bottom', fontsize=8)
+        
+        ax.set_title(metric, fontweight='bold', fontsize=12)
+        ax.set_xticks(x_pos)
+        ax.set_xticklabels(short_names, fontsize=9)
+        ax.set_ylim(0, 1.15)
+        ax.grid(axis='y', alpha=0.3)
+        if m_idx == 0:
+            ax.legend(fontsize=8)
+
+    fig.suptitle('Original Paper vs Replicated Results Comparison', fontweight='bold', fontsize=14, y=1.02)
+    plt.tight_layout()
+    plt.savefig('plots/fig3_paper_vs_replicated.png', dpi=150, bbox_inches='tight')
+    plt.close()
+    print("      -> plots/fig3_paper_vs_replicated.png")
+
+    # ── Fig 4: Model Accuracy Comparison Bar (clean summary) ──
+    fig, ax = plt.subplots(figsize=(8, 5))
+    accuracies = [results[n]['Accuracy'] for n in model_names]
+    paper_acc = [paper[n]['Accuracy'] for n in model_names]
+    
+    x_pos = np.arange(len(short_names))
+    bars1 = ax.barh(x_pos + 0.15, paper_acc, 0.3, label='Original Paper', color='#1565C0')
+    bars2 = ax.barh(x_pos - 0.15, accuracies, 0.3, label='Our Replication', color='#FF7043')
+    
+    for bar, val in zip(bars1, paper_acc):
+        ax.text(bar.get_width() + 0.01, bar.get_y() + bar.get_height()/2.,
+                f'{val:.2f}', ha='left', va='center', fontweight='bold')
+    for bar, val in zip(bars2, accuracies):
+        ax.text(bar.get_width() + 0.01, bar.get_y() + bar.get_height()/2.,
+                f'{val:.2f}', ha='left', va='center', fontweight='bold')
+    
+    ax.set_yticks(x_pos)
+    ax.set_yticklabels(short_names, fontsize=12)
+    ax.set_xlabel('Accuracy', fontsize=12)
+    ax.set_title('Model Accuracy: Paper vs Replication', fontweight='bold', fontsize=14)
+    ax.set_xlim(0, 1.1)
+    ax.legend(loc='lower right', fontsize=11)
+    ax.grid(axis='x', alpha=0.3)
+    plt.tight_layout()
+    plt.savefig('plots/fig4_accuracy_comparison.png', dpi=150, bbox_inches='tight')
+    plt.close()
+    print("      -> plots/fig4_accuracy_comparison.png")
 
 
 # ============================================================
@@ -316,8 +445,12 @@ def main():
         }
         print(f"Acc={acc:.2f} Prec={prec:.2f} Rec={rec:.2f} F1={f1:.2f}")
 
-    # ── 6. Report Generation ──
-    print("[6/7] Generating report...")
+    # ── 6. Generate Plots (like Figs 3-6 in paper) ──
+    print("[6/7] Generating plots...")
+    generate_plots(results)
+
+    # ── 7. Report Generation ──
+    print("[7/7] Generating report...")
     generate_report(results)
 
     # ── Print comparison table ──

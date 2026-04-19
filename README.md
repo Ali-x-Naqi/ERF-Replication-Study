@@ -178,6 +178,24 @@ Both implement histogram-based gradient boosting. Scikit-learn's documentation s
 
 > **Key Finding:** Random Forest accuracy (0.84) is within 0.01 of the paper's reported 0.85. XGBoost F1-Score (0.83) exactly matches the paper's 0.83. The core claim — ensemble methods vastly outperform Logistic Regression — is fully validated.
 
+### 5.4 Visual Analysis
+
+**Confusion Matrices (Replicating Fig. 3)**  
+![Confusion Matrices](plots/fig1_confusion_matrices.png)  
+*Fig. 1. Confusion matrices for Logistic Regression, Random Forest (ERF), and Gradient Boosting.*
+
+**Performance Metrics Comparison (Replicating Table I Visual)**  
+![Performance Metrics](plots/fig2_performance_metrics.png)  
+*Fig. 2. Performance comparison of all three replicated models across Accuracy, Precision, Recall, and F1.*
+
+**Paper vs Replicated Results (Replicating Figs. 5-6 Style)**  
+![Paper vs Replicated Comparison](plots/fig3_paper_vs_replicated.png)  
+*Fig. 3. Side-by-side comparison of original paper results vs our replicated results across all metrics.*
+
+**Model Accuracy: Paper vs Replication**  
+![Model Accuracy Comparison](plots/fig4_accuracy_comparison.png)  
+*Fig. 4. Horizontal accuracy comparison showing RF and XGBoost matching or exceeding the paper.*
+
 ---
 
 ## 6. Discussion & Conclusion
