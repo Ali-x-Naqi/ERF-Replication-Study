@@ -18,7 +18,7 @@
 | ------------------------- | ------------------------------------------------------------- |
 | `README.md`               | This replication report                                       |
 | `replication_codebase.py` | Full Python codebase replicating the paper's methodology      |
-| `ETASR_9148_2.pdf`        | Original research paper (Included in submission package)      |
+| `ETASR_9148_2.pdf`        | Original research paper                                       |
 | `appstore_7197_apps.csv`  | Dataset: 7,197 apps sampled to match the paper (Section II-A) |
 
 ---
