@@ -289,7 +289,9 @@ def generate_improved_plots(improved, ablation_results):
     for idx, name in enumerate(model_names):
         cm = improved[name]['CM']
         total = cm.sum()
-        labels = np.array([[f"{cm[i][j]}\n({cm[i][j]/total*100:.1f}%)"
+        # Standard academic labels (TN, FP, FN, TP)
+        desc = [['TN', 'FP'], ['FN', 'TP']]
+        labels = np.array([[f"{desc[i][j]}\n{cm[i][j]}\n({cm[i][j]/total*100:.1f}%)"
                            for j in range(2)] for i in range(2)])
         sns.heatmap(cm, annot=labels, fmt='', cmap='Greens', ax=axes[idx],
                     xticklabels=['Low', 'High'], yticklabels=['Low', 'High'],
@@ -443,8 +445,8 @@ def main():
     ablation['Baseline\n(Task 2: 7K)'] = REPLICATION
 
     # Step A: Full dataset, paper features, paper params
-    ablation['+ Full Dataset\n(546K)'] = run_pipeline(df_filtered, {
-        'tag': 'Ablation A: Full Dataset Only',
+    ablation['+ Scaled & Filtered\n(57K)'] = run_pipeline(df_filtered, {
+        'tag': 'Ablation A: Scaled & Filtered Dataset',
         'use_new_features': False, 'use_smote': False,
         'use_tuned_params': False, 'max_rows': 100000
     })

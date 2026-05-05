@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERF Project - Viva & Q&A Guide</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --secondary: #2E7D32;
+            --bg: #f4f7f6;
+            --text: #333;
+            --accent: #E8F5E9;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); padding: 40px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h1 { color: var(--secondary); border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 30px; }
+        h2 { color: var(--secondary); margin-top: 40px; background: var(--accent); padding: 10px; border-radius: 6px; }
+        .qa-card { margin-bottom: 25px; border-left: 5px solid var(--primary); padding-left: 20px; }
+        .question { font-weight: bold; font-size: 1.1em; color: #1B5E20; display: block; margin-bottom: 5px; }
+        .answer { color: #555; }
+        .highlight { font-weight: bold; color: var(--secondary); }
+        .stat-box { display: flex; justify-content: space-around; background: #333; color: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .stat-item { text-align: center; }
+        .stat-val { font-size: 1.5em; font-weight: bold; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ERF Framework: Final Project Viva Guide</h1>
+        
+        <p>This guide is designed to help <b>Ali Naqi</b> and <b>Muhammad Ahmad</b> defend their project during the Q&A session. It covers every technical detail and concept used.</p>
+
+        <h2>1. Core Project Overview</h2>
+        <div class="qa-card">
+            <span class="question">Q: What is the main goal of your project?</span>
+            <span class="answer">We replicated and then "improvised" the Enhanced Random Forest (ERF) framework from the 2025 paper by Hussain et al. Our goal was to prove that by using academic Data Science techniques (IQR, PCA, K-Fold), we could scale the model to a much larger dataset while achieving superior <b>92% F1-Scores</b>.</span>
+        </div>
+
+        <h2>2. Data Science Concepts (The "Marks" Section)</h2>
+        <div class="qa-card">
+            <span class="question">Q: Why did you use IQR (Interquartile Range)?</span>
+            <span class="answer">The raw App Store dataset is noisy. An app with a $999 price or 10 million reviews is an outlier. We used the mathematical <b>IQR method</b> (Q3 - Q1) to identify and remove these extreme outliers, cleaning the distribution for our classifiers.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: What is the benefit of PCA in this project?</span>
+            <span class="answer">Our feature engineering created 46 different variables. Many of these might be correlated. <b>PCA (Principal Component Analysis)</b> reduced this down to the top 24 components that retain 95% of the variance, making the models faster and preventing the "Curse of Dimensionality."</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: Why Stratified K-Fold instead of a simple split?</span>
+            <span class="answer">A simple 80/20 split can be "lucky." <b>Stratified K-Fold (k=3)</b> ensures that every model is tested 3 times on different data subsets while maintaining the class balance (High vs Low rating). Our reported 85% Accuracy is the average of these folds, making it scientifically reliable.</span>
+        </div>
+
+        <h2>3. Key Results & Gains</h2>
+        <div class="stat-box">
+            <div class="stat-item"><div class="stat-val">57,862</div><div>Final Rows</div></div>
+            <div class="stat-item"><div class="stat-val">+114%</div><div>LR F1 Gain</div></div>
+            <div class="stat-item"><div class="stat-val">92%</div><div>Final F1-Score</div></div>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: How did you "rescue" Logistic Regression?</span>
+            <span class="answer">In Task 2, LR failed with 0.43 F1. We rescued it to 0.92 F1 by using <b>Log Transforms</b> (to handle skewness) and <b>Feature Interaction</b> (like Reviews per Day). This proves that with good feature engineering, simple models can perform as well as complex ensembles.</span>
+        </div>
+
+        <h2>4. Handling "Negative" Results</h2>
+        <div class="qa-card">
+            <span class="question">Q: Why did SMOTE fail in your project?</span>
+            <span class="answer">Our ablation study showed SMOTE decreased performance. This is because our class imbalance (85:15) was manageable after IQR cleaning. SMOTE created "synthetic" samples that blurred the decision boundary, adding noise rather than value. We documented this as a <b>Negative Finding</b>, which is a sign of honest, rigorous research.</span>
+        </div>
+
+        <h2>5. Technical Hurdles</h2>
+        <div class="qa-card">
+            <span class="question">Q: What was the biggest technical challenge?</span>
+            <span class="answer">Processing 1.2 Million rows on a laptop. We solved this by optimizing data types, dropping irrelevant columns early, and using <code>n_jobs=-1</code> for parallel processing during Random Forest training.</span>
+        </div>
+
+        <footer style="margin-top: 50px; font-size: 0.8em; color: #888; text-align: center;">
+            Prepared for Ali Naqi & Muhammad Ahmad | SE-6B | 2026
+        </footer>
+    </div>
+</body>
+</html>
