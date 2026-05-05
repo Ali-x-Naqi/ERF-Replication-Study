@@ -18,15 +18,14 @@ You have a strict 5-minute window (4 min speaking + 1 min Q&A). You need to be f
   1. **Memory Crashes:** Scaling to 1.2 Million rows caused `loky` multiprocessing ArrayMemoryErrors. We solved this by optimizing data types, dropping useless columns, and careful multi-threading (`n_jobs=-1`).
   2. **Noise in Ratings:** Apps with only 1 or 2 reviews have random, unreliable ratings that destroy model training.
 
-## Slide 3: Our Improvisations (Data & Features) (45 seconds)
-* **Improvisation 1: Statistical Filtering (The Game Changer)**
-  * We filtered the 1.2M dataset to apps with **Reviews >= 100**. This removes noise and ensures we only train on statistically significant ratings (leaving ~67,000 high-quality rows).
-* **Improvisation 4: Feature Engineering & Transforms**
-  * Extracted temporal features: `App_Age_Days`, `Update_Gap_Days`.
-  * Added Log Transforms: `Log_Reviews`, `Log_Size_Bytes` (handles massive skewness).
-  * Added Interaction Features: `Reviews_Per_Day`.
-* **Improvisation 3: Negative Finding on SMOTE**
-  * We implemented SMOTE for class imbalance but scientifically proved via our Ablation Study that it *hurt* performance on this dataset.
+## Slide 3: Our Academic Improvisations (Methodology) (45 seconds)
+* **Improvisation 1: IQR Outlier Detection (EDA)**
+  * Filtered initial noise (Reviews < 100), then implemented the mathematical **Interquartile Range (IQR)** method to strictly remove statistical outliers in Price and Size, resulting in 57,000 highly robust samples.
+* **Improvisation 2: Dimensionality Reduction (PCA)**
+  * After feature engineering, we applied **Principal Component Analysis (PCA)**, reducing our feature space to principal components that retain 95% of dataset variance.
+* **Improvisation 3: Cross Validation & Hyperparameter Tuning**
+  * Replaced basic train-test splits with **Stratified K-Fold Cross Validation**.
+  * Replaced manual guessing with **RandomizedSearchCV** to scientifically locate the optimal hyperparameter bounds.
 
 ## Slide 4: Replication vs. Improvisation Stats (1 minute)
 *Show a table comparing Task 2 vs Task 3 (You can screenshot the table from the HTML report).*

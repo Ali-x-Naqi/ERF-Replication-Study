@@ -16,13 +16,14 @@ IMPROVEMENTS OVER ORIGINAL PAPER:
 import pandas as pd
 import numpy as np
 import os, time, json
-from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.model_selection import train_test_split, StratifiedKFold, RandomizedSearchCV
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import (RandomForestClassifier, HistGradientBoostingClassifier,
                               ExtraTreesClassifier, StackingClassifier)
 from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, confusion_matrix)
+from sklearn.decomposition import PCA
 from imblearn.over_sampling import SMOTE
 import matplotlib
 matplotlib.use('Agg')
@@ -158,6 +159,14 @@ def run_pipeline(df, config, verbose=True):
     if verbose:
         print(f"  Features: {X.shape[1]}")
 
+    # ── Dimensionality Reduction using PCA (Course Topic) ──
+    # Reduces feature space while retaining 95% of variance to improve efficiency
+    if config.get('use_new_features'):
+        pca = PCA(n_components=0.95, random_state=42)
+        X = pca.fit_transform(X)
+        if verbose:
+            print(f"  After PCA (95% variance): {X.shape[1]} components")
+
     # ── Split 80/20 (Course: Train-Test Split, Topic 9a) ──
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y)
@@ -174,17 +183,21 @@ def run_pipeline(df, config, verbose=True):
         if verbose:
             print(f"Done ({time.time()-t0:.1f}s) -> {len(X_train):,} training samples")
 
-    # ── Models ──
+    # ── Models (Course: Cross-Validation & Hyperparameter Tuning) ──
     if config.get('use_tuned_params'):
+        # Using StratifiedKFold and RandomizedSearchCV (Standard Data Science course topics)
+        cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
         models = {
             'Logistic Regression': LogisticRegression(
                 max_iter=2000, C=0.5, solver='lbfgs'),
-            'Random Forest (ERF)': RandomForestClassifier(
-                n_estimators=300, max_depth=None, min_samples_split=5,
-                min_samples_leaf=2, random_state=42, n_jobs=-1),
-            'XGBoost': HistGradientBoostingClassifier(
-                max_iter=300, learning_rate=0.05, max_depth=8,
-                min_samples_leaf=10, random_state=42),
+            'Random Forest (ERF)': RandomizedSearchCV(
+                RandomForestClassifier(random_state=42, n_jobs=-1),
+                param_distributions={'n_estimators': [100, 300], 'max_depth': [None, 10, 20], 'min_samples_split': [2, 5]},
+                n_iter=2, cv=cv, random_state=42, n_jobs=1), # Reduced n_iter for speed during presentation
+            'XGBoost': RandomizedSearchCV(
+                HistGradientBoostingClassifier(random_state=42),
+                param_distributions={'max_iter': [100, 300], 'learning_rate': [0.05, 0.1], 'max_depth': [6, 8]},
+                n_iter=2, cv=cv, random_state=42, n_jobs=1),
         }
     else:
         models = {
@@ -326,20 +339,30 @@ def generate_improved_plots(improved, ablation_results):
     # ── Plot 4: Feature importance (from RF) ──
     if '_rf_model' in improved and '_feature_names' in improved:
         rf = improved['_rf_model']
+        # Extract best estimator if it was wrapped in RandomizedSearchCV
+        if hasattr(rf, 'best_estimator_'):
+            rf = rf.best_estimator_
+            
         feat_names = improved['_feature_names']
-        importances = rf.feature_importances_
-        top_idx = np.argsort(importances)[-15:]
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.barh(range(len(top_idx)), importances[top_idx], color='#4CAF50')
-        ax.set_yticks(range(len(top_idx)))
-        ax.set_yticklabels([feat_names[i] for i in top_idx], fontsize=9)
-        ax.set_xlabel('Importance')
-        ax.set_title('Top 15 Feature Importances (Random Forest)', fontweight='bold')
-        ax.grid(axis='x', alpha=0.3)
-        plt.tight_layout()
-        plt.savefig('improved_plots/fig4_feature_importance.png', dpi=150, bbox_inches='tight')
-        plt.close()
-        print("  -> improved_plots/fig4_feature_importance.png")
+        if hasattr(rf, 'feature_importances_'):
+            importances = rf.feature_importances_
+            
+            # If PCA was used, the feature names don't match the importance array length
+            if len(importances) != len(feat_names):
+                feat_names = [f"Principal Component {i+1}" for i in range(len(importances))]
+                
+            top_idx = np.argsort(importances)[-15:]
+            fig, ax = plt.subplots(figsize=(10, 6))
+            ax.barh(range(len(top_idx)), importances[top_idx], color='#4CAF50')
+            ax.set_yticks(range(len(top_idx)))
+            ax.set_yticklabels([feat_names[i] for i in top_idx], fontsize=9)
+            ax.set_xlabel('Relative Importance (Gini)')
+            ax.set_title('Top 15 Principal Components / Features (Course Topic)', fontweight='bold')
+            ax.grid(axis='x', alpha=0.3)
+            plt.tight_layout()
+            plt.savefig('improved_plots/fig4_feature_importance.png', dpi=150, bbox_inches='tight')
+            plt.close()
+            print("  -> improved_plots/fig4_feature_importance.png")
 
     # ── Plot 5: All models F1 comparison ──
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -384,10 +407,22 @@ def main():
     df_full = pd.read_csv(full_path, low_memory=False)
     print(f"  Full dataset: {len(df_full):,} rows ({time.time()-t0:.1f}s)")
 
-    # IMPROVEMENT 1: Filter to statistically significant apps (Reviews >= 100)
-    # This removes noise and drastically improves model confidence.
-    df_filtered = df_full[df_full['Reviews'] >= 100].copy()
-    print(f"  Filtered (Reviews >= 100): {len(df_filtered):,} rows")
+    # IMPROVEMENT 1: Outlier Detection and Removal using IQR (Interquartile Range)
+    # This is a standard Data Science course technique to remove statistical noise.
+    df_filtered = df_full[df_full['Reviews'] >= 100].copy() # Filter low-confidence ratings
+    print(f"  Base filtered (Reviews >= 100): {len(df_filtered):,} rows")
+    
+    for col in ['Size_Bytes', 'Price']:
+        if col in df_filtered.columns:
+            Q1 = df_filtered[col].quantile(0.25)
+            Q3 = df_filtered[col].quantile(0.75)
+            IQR = Q3 - Q1
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+            # Remove extreme outliers to clean the dataset mathematically
+            df_filtered = df_filtered[(df_filtered[col] >= lower_bound) & (df_filtered[col] <= upper_bound)]
+            
+    print(f"  After IQR Outlier Removal: {len(df_filtered):,} rows")
 
     # IMPROVEMENT 2: Feature Engineering
     print("\n[2/6] Engineering new features...")

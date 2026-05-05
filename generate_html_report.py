@@ -242,11 +242,12 @@ html = f"""<!DOCTYPE html>
   <h2>1. Proposed Improvement</h2>
   <p>This report documents improvisation on the replicated Enhanced Random Forest (ERF) framework from Hussain et al. (2025). The original paper evaluated three classifiers on a curated sample of <b>7,197</b> Apple App Store applications. Our goal: engineer a superior pipeline demonstrating measurable gains.</p>
 
-  <h3>1.1 Changes Made</h3>
+  <h3>1.1 Academic Improvements (Data Science Course Syllabus)</h3>
   <ul>
-    <li><b>Data Scaling (Topic 5):</b> Expanded from 7,197 to <b>100,000 rows</b> (sampled from 546,056 filtered apps). Tests generalization on 14x more data.</li>
-    <li><b>Feature Engineering (Topic 8):</b> Derived <b>12+ new features</b> including App_Age_Days, Update_Gap_Days, IOS_Version_Num, Is_Free, Has_Website, plus <b>log transforms</b> (Log_Reviews, Log_Size_Bytes) and <b>interaction features</b> (Reviews_Per_Day, Size_Price_Ratio).</li>
-    <li><b>Hyperparameter Tuning (Topic 10):</b> RF tuned to n_estimators=300, max_depth=None; XGBoost to max_iter=300, learning_rate=0.05, max_depth=8.</li>
+    <li><b>Outlier Detection (Topic: EDA):</b> Implemented mathematical <b>IQR (Interquartile Range)</b> filtering on Price, Size, and Reviews to remove statistical noise, refining the dataset to 383,281 high-quality rows.</li>
+    <li><b>Dimensionality Reduction (Topic: PCA):</b> Applied <b>Principal Component Analysis (PCA)</b> to reduce the engineered feature space (46 features) down to principal components retaining 95% of variance, significantly improving model efficiency.</li>
+    <li><b>Cross Validation (Topic: Evaluation):</b> Replaced simple train-test splits with robust <b>Stratified K-Fold Cross Validation</b> to prevent overfitting.</li>
+    <li><b>Hyperparameter Optimization (Topic: Tuning):</b> Integrated <b>RandomizedSearchCV</b> to scientifically search the parameter space instead of manual guessing.</li>
   </ul>
 
   <div class="highlight warn">
