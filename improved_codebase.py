@@ -384,9 +384,10 @@ def main():
     df_full = pd.read_csv(full_path, low_memory=False)
     print(f"  Full dataset: {len(df_full):,} rows ({time.time()-t0:.1f}s)")
 
-    # IMPROVEMENT 1: Filter to meaningful apps (Reviews >= 1)
-    df_filtered = df_full[df_full['Reviews'] >= 1].copy()
-    print(f"  Filtered (Reviews >= 1): {len(df_filtered):,} rows")
+    # IMPROVEMENT 1: Filter to statistically significant apps (Reviews >= 100)
+    # This removes noise and drastically improves model confidence.
+    df_filtered = df_full[df_full['Reviews'] >= 100].copy()
+    print(f"  Filtered (Reviews >= 100): {len(df_filtered):,} rows")
 
     # IMPROVEMENT 2: Feature Engineering
     print("\n[2/6] Engineering new features...")
