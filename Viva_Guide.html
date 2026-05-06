@@ -84,6 +84,36 @@
             <span class="answer">Processing 1.2 Million rows on a laptop. We solved this by optimizing data types, dropping irrelevant columns early, and using <code>n_jobs=-1</code> for parallel processing during Random Forest training.</span>
         </div>
 
+        <h2>6. Simple Roman Urdu Explanations (For Teacher Q&A)</h2>
+        <div class="qa-card">
+            <span class="question">Q: Dataset kya hai aur Target variable kya hai?</span>
+            <span class="answer">Yeh Apple App Store ka data hai jisme 1.2 million apps ki information thi (size, price, genre, reviews). Humne sirf woh 57,862 apps rakhi jo 100 se zyada reviews rakhti thein. Humein predict karna tha ke kisi app ki rating 'High' (4.0 se upar) hogi ya 'Low'.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: Original Paper mein kya masla tha?</span>
+            <span class="answer">Original paper ne sirf 7,197 apps use ki thein jo poore data ka sirf 0.6% tha. Itne kam data par model asli duniya mein kaam nahi karta aur sirf 'ratta' lagata hai (overfitting). Unhone outlier removal ya hyperparameter tuning bhi nahi ki thi.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: ERF (Extra Random Forest) kya hai?</span>
+            <span class="answer">Normal Random Forest har tree mein best split dhundta hai, jabke ERF (Extra Randomized Forest) har tree mein random split karta hai. Is wajah se ERF zyada fast hota hai aur baday data par better generalize karta hai (overfitting se bachata hai). Simple misaal: 100 log kuch soch ke jawab dain aur kuch randomly soch kar, toh nayay angles samne aate hain.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: Aapne konsay 3 base models use kiye aur kyun?</span>
+            <span class="answer">
+                <b>1. Logistic Regression:</b> Baseline model. Fast aur simple. Humne prove kiya ke data saaf ho toh simple model bhi 92% F1 de sakta hai.<br>
+                <b>2. Random Forest (ERF):</b> Outliers se protected aur complex data patterns ko capture karta hai bina overfit kiye.<br>
+                <b>3. XGBoost:</b> Sab se advanced model jo 'boosting' use karta hai (har agla tree pichle ki galtiyan theek karta hai). Isne sab se accurate score (0.9209 F1) diya.
+            </span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: Hyperparameter Tuning kya hoti hai aur aapne konsi use ki?</span>
+            <span class="answer">Tuning aise hai jaise chai banate waqt cheeni aur patti set karna. Humne <b>RandomizedSearchCV</b> use ki. Humne Parameters ki range di (jaise n_estimators 100 se 300) aur model ne randomly combinations try kar ke best combination select ki. GridSearch use nahi kiya kyunke wo bohot slow hota hai.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: SMOTE (Negative Finding) ka Roman Urdu jawab:</span>
+            <span class="answer">SMOTE minority class ke artificial (fake) samples banata hai. Humne try kiya lekin F1 score 0.92 se gir kar 0.78 ho gaya. Iski wajah yeh thi ke PCA hone ke baad compressed data mein SMOTE ne ajeeb jagahon par samples bana diye jo model ko confuse kar rahe thay. Isay 'Negative Finding' ke tor par batana hamari scientific honesty ko show karta hai.</span>
+        </div>
+
         <footer style="margin-top: 50px; font-size: 0.8em; color: #888; text-align: center;">
             Prepared for Ali Naqi & Muhammad Ahmad | SE-6B | 2026
         </footer>
