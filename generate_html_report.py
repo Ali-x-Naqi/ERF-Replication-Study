@@ -443,9 +443,9 @@ for (const model of allModels) {{
     
     tbody.innerHTML += `<tr>
       <td>${{short}}</td><td>${{metric}}</td>
-      <td>${{p.toFixed(2)}}</td><td>${{t2.toFixed(2)}}</td>
+      <td>${{p_text}}</td><td>${{t2_text}}</td>
       <td><b>${{t3.toFixed(4)}}</b></td>
-      <td class="${{cls}}">${{sign}}${{gain}}%</td>
+      <td class="${{cls}}">${{gainText}}</td>
     </tr>`;
   }}
 }}
