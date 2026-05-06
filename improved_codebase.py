@@ -20,7 +20,7 @@ from sklearn.model_selection import train_test_split, StratifiedKFold, Randomize
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import (RandomForestClassifier, HistGradientBoostingClassifier,
-                              ExtraTreesClassifier, StackingClassifier)
+                              ExtraTreesClassifier, StackingClassifier, VotingClassifier)
 from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, confusion_matrix)
 from sklearn.decomposition import PCA
@@ -198,15 +198,22 @@ def run_pipeline(df, config, verbose=True):
                 HistGradientBoostingClassifier(random_state=42),
                 param_distributions={'max_iter': [100, 300], 'learning_rate': [0.05, 0.1], 'max_depth': [6, 8]},
                 n_iter=2, cv=cv, random_state=42, n_jobs=1),
+            'Ensemble (Soft Voting)': VotingClassifier(
+                estimators=[
+                    ('lr', LogisticRegression(max_iter=2000, C=0.5, solver='lbfgs')),
+                    ('rf', RandomForestClassifier(n_estimators=300, max_depth=20, random_state=42, n_jobs=-1)),
+                    ('xgb', HistGradientBoostingClassifier(max_iter=300, learning_rate=0.05, max_depth=8, random_state=42))
+                ], voting='soft')
         }
     else:
+        lr = LogisticRegression(max_iter=1000)
+        rf = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=42, n_jobs=-1)
+        xgb = HistGradientBoostingClassifier(max_iter=100, learning_rate=0.1, max_depth=6, random_state=42)
         models = {
-            'Logistic Regression': LogisticRegression(max_iter=1000),
-            'Random Forest (ERF)': RandomForestClassifier(
-                n_estimators=100, max_depth=None, random_state=42, n_jobs=-1),
-            'XGBoost': HistGradientBoostingClassifier(
-                max_iter=100, learning_rate=0.1, max_depth=6,
-                random_state=42),
+            'Logistic Regression': lr,
+            'Random Forest (ERF)': rf,
+            'XGBoost': xgb,
+            'Ensemble (Soft Voting)': VotingClassifier(estimators=[('lr', lr), ('rf', rf), ('xgb', xgb)], voting='soft')
         }
 
 

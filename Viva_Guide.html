@@ -62,7 +62,17 @@
             <span class="answer">In Task 2, LR failed with 0.43 F1. We rescued it to 0.92 F1 by using <b>Log Transforms</b> (to handle skewness) and <b>Feature Interaction</b> (like Reviews per Day). This proves that with good feature engineering, simple models can perform as well as complex ensembles.</span>
         </div>
 
-        <h2>4. Handling "Negative" Results</h2>
+        <h2>4. Models & Ensemble Approach (The "New" Model)</h2>
+        <div class="qa-card">
+            <span class="question">Q: Did you add any new models beyond what the paper used?</span>
+            <span class="answer">Yes! While the paper used standalone Logistic Regression, Random Forest, and XGBoost, we introduced a <b>Soft Voting Ensemble Classifier</b>.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: How does your Soft Voting Ensemble work?</span>
+            <span class="answer">Instead of relying on one model, the Ensemble runs LR, RF, and XGBoost simultaneously. Rather than just picking a 'High' or 'Low' class (Hard Voting), it averages the <b>predicted probabilities / confidence scores</b> of all three models (Soft Voting). This combines the unique strengths of each algorithm, leading to maximum stability.</span>
+        </div>
+
+        <h2>5. Handling "Negative" Results</h2>
         <div class="qa-card">
             <span class="question">Q: Why did SMOTE fail in your project?</span>
             <span class="answer">Our ablation study showed SMOTE decreased performance. This is because our class imbalance (85:15) was manageable after IQR cleaning. SMOTE created "synthetic" samples that blurred the decision boundary, adding noise rather than value. We documented this as a <b>Negative Finding</b>, which is a sign of honest, rigorous research.</span>

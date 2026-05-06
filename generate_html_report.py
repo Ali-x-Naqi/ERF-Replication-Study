@@ -396,20 +396,21 @@ const task2 = {{
   'XGBoost': {{Accuracy: 0.87, Precision: 0.71, Recall: 0.99, 'F1-Score': 0.83}},
 }};
 const task3 = {json.dumps(improved)};
+const allModels = ['Logistic Regression', 'Random Forest (ERF)', 'XGBoost', 'Ensemble (Soft Voting)'];
 
 // ── KPI Cards ──
 const kpiSection = document.getElementById('kpi-section');
 let kpiHTML = '<div class="kpi-grid">';
-for (const model of ['Logistic Regression', 'Random Forest (ERF)', 'XGBoost']) {{
+for (const model of allModels) {{
   const f1_t3 = task3[model]?.['F1-Score'] || 0;
-  const f1_t2 = task2[model]?.['F1-Score'] || 0;
-  const delta = ((f1_t3 - f1_t2) / f1_t2 * 100).toFixed(1);
-  const sign = delta >= 0 ? '+' : '';
-  const short = model === 'Logistic Regression' ? 'LR' : model === 'Random Forest (ERF)' ? 'RF' : 'XGB';
+  const f1_t2 = task2[model]?.['F1-Score'] || f1_t3;
+  const delta = f1_t2 > 0 ? ((f1_t3 - f1_t2) / f1_t2 * 100).toFixed(1) : "New";
+  const sign = (delta !== "New" && delta >= 0) ? '+' : '';
+  const short = model === 'Logistic Regression' ? 'LR' : model === 'Random Forest (ERF)' ? 'RF' : model === 'XGBoost' ? 'XGB' : 'Ens';
   kpiHTML += `<div class="kpi">
     <div class="model">${{short}} F1-Score</div>
     <div class="score">${{f1_t3.toFixed(4)}}</div>
-    <div class="delta">${{sign}}${{delta}}% vs Task 2</div>
+    <div class="delta">${{delta !== "New" ? sign + delta + '%' : 'New'}} vs Task 2</div>
   </div>`;
 }}
 kpiHTML += '</div>';
@@ -418,15 +419,28 @@ kpiSection.innerHTML = kpiHTML;
 // ── Comparison Table ──
 const tbody = document.getElementById('comparison-table');
 const metrics = ['Accuracy', 'Precision', 'Recall', 'F1-Score'];
-for (const model of ['Logistic Regression', 'Random Forest (ERF)', 'XGBoost']) {{
-  const short = model === 'Logistic Regression' ? 'LR' : model === 'Random Forest (ERF)' ? 'RF' : 'XGB';
+for (const model of allModels) {{
+  const short = model === 'Logistic Regression' ? 'LR' : model === 'Random Forest (ERF)' ? 'RF' : model === 'XGBoost' ? 'XGB' : 'Ensemble';
   for (const metric of metrics) {{
-    const p = paper[model][metric];
-    const t2 = task2[model][metric];
+    const p = paper[model]?.[metric] || 0;
+    const t2 = task2[model]?.[metric] || 0;
     const t3 = task3[model]?.[metric] || 0;
-    const gain = ((t3 - t2) / t2 * 100).toFixed(1);
-    const cls = gain >= 0 ? 'gain-pos' : 'gain-neg';
-    const sign = gain >= 0 ? '+' : '';
+    
+    let gainText = "";
+    let cls = "";
+    if (t2 > 0) {{
+        const gain = ((t3 - t2) / t2 * 100).toFixed(1);
+        cls = gain >= 0 ? 'gain-pos' : 'gain-neg';
+        const sign = gain >= 0 ? '+' : '';
+        gainText = `${{sign}}${{gain}}%`;
+    }} else {{
+        cls = 'gain-pos';
+        gainText = "New";
+    }}
+    
+    const p_text = p > 0 ? p.toFixed(2) : '-';
+    const t2_text = t2 > 0 ? t2.toFixed(2) : '-';
+    
     tbody.innerHTML += `<tr>
       <td>${{short}}</td><td>${{metric}}</td>
       <td>${{p.toFixed(2)}}</td><td>${{t2.toFixed(2)}}</td>
