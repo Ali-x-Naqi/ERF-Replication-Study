@@ -27,91 +27,98 @@
 </head>
 <body>
     <div class="container">
-        <h1>ERF Framework: Final Project Viva Guide</h1>
+        <h1>ERF Framework: Final Project Viva Guide (Detailed)</h1>
         
-        <p>This guide is designed to help <b>Ali Naqi</b> and <b>Muhammad Ahmad</b> defend their project during the Q&A session. It covers every technical detail and concept used.</p>
+        <p>This guide is designed to help <b>Ali Naqi</b> and <b>Muhammad Ahmad</b> defend their project. Yeh guide Roman Urdu mein bohot detailed hai taake teacher ka har sawal cover ho jaye.</p>
 
-        <h2>1. Core Project Overview</h2>
+        <h2>1. Core Project & Dataset</h2>
         <div class="qa-card">
-            <span class="question">Q: What is the main goal of your project?</span>
-            <span class="answer">We replicated and then "improvised" the Enhanced Random Forest (ERF) framework from the 2025 paper by Hussain et al. Our goal was to prove that by using academic Data Science techniques (IQR, PCA, K-Fold), we could scale the model to a much larger dataset while achieving superior <b>92% F1-Scores</b>.</span>
-        </div>
-
-        <h2>2. Data Science Concepts (The "Marks" Section)</h2>
-        <div class="qa-card">
-            <span class="question">Q: Why did you use IQR (Interquartile Range)?</span>
-            <span class="answer">The raw App Store dataset is noisy. An app with a $999 price or 10 million reviews is an outlier. We used the mathematical <b>IQR method</b> (Q3 - Q1) to identify and remove these extreme outliers, cleaning the distribution for our classifiers.</span>
+            <span class="question">Q: Dataset kahan se aya aur is mein kya hai?</span>
+            <span class="answer">Yeh Apple App Store ka data hai jisme 1.2 million apps ki information thi — jaise app ka size, price, genre, reviews wagera. Humne sirf woh 57,862 apps rakhi jo 100 se zyada reviews rakhti thein, taake data authentic aur reliable ho.</span>
         </div>
         <div class="qa-card">
-            <span class="question">Q: What is the benefit of PCA in this project?</span>
-            <span class="answer">Our feature engineering created 46 different variables. Many of these might be correlated. <b>PCA (Principal Component Analysis)</b> reduced this down to the top 24 components that retain 95% of the variance, making the models faster and preventing the "Curse of Dimensionality."</span>
+            <span class="question">Q: Target variable kya thi?</span>
+            <span class="answer">Humein predict karna tha ke kisi app ki rating 'High' hogi ya 'Low'. 4.0 se upar wali apps ko 'High' classify kiya aur baaki ko 'Low'.</span>
         </div>
         <div class="qa-card">
-            <span class="question">Q: Why Stratified K-Fold instead of a simple split?</span>
-            <span class="answer">A simple 80/20 split can be "lucky." <b>Stratified K-Fold (k=3)</b> ensures that every model is tested 3 times on different data subsets while maintaining the class balance (High vs Low rating). Our reported 85% Accuracy is the average of these folds, making it scientifically reliable.</span>
+            <span class="question">Q: Original Paper mein kya masla tha? Aapne usko criticize kyun kiya?</span>
+            <span class="answer">Original paper (Hussain et al., 2025) ne sirf 7,197 apps use ki thein jo poore data ka sirf 0.6% tha. Itne kam data par model asli duniya mein kaam nahi karta aur sirf 'ratta' lagata hai (overfitting). Unhone simple train-test split use kiya tha jisme overfitting ka risk hota hai, aur koi outlier removal ya hyperparameter tuning bhi nahi ki thi. Isiliye humara Task 2 (Replication) mein Logistic Regression ka score sirf 0.43 aya.</span>
         </div>
 
-        <h2>3. Key Results & Gains</h2>
-        <div class="stat-box">
-            <div class="stat-item"><div class="stat-val">57,862</div><div>Final Rows</div></div>
-            <div class="stat-item"><div class="stat-val">+114%</div><div>LR F1 Gain</div></div>
-            <div class="stat-item"><div class="stat-val">92%</div><div>Final F1-Score</div></div>
+        <h2>2. Data Science Techniques (The 4 Pillars)</h2>
+        <div class="qa-card">
+            <span class="question">Q: IQR (Outlier Detection) kya hota hai?</span>
+            <span class="answer">IQR ka matlab hai Inter-Quartile Range. Yeh ek statistical method hai jo data mein se 'faaltu' ya extreme values nikalta hai. Maslan $999 wali apps ya bohat hi ajeeb size wali apps — yeh model ko confuse karti hain. Humne inhe hata diya. Sirf is ek step se Logistic Regression ka F1 0.43 se 0.92 ho gaya.<br><br><b>Simple misaal:</b> Socho class mein sab ke 60-80 number hain lekin ek student ke 1 number hain — woh average bigad deta hai. IQR usi ko hata deta hai.</span>
         </div>
         <div class="qa-card">
-            <span class="question">Q: How did you "rescue" Logistic Regression?</span>
-            <span class="answer">In Task 2, LR failed with 0.43 F1. We rescued it to 0.92 F1 by using <b>Log Transforms</b> (to handle skewness) and <b>Feature Interaction</b> (like Reviews per Day). This proves that with good feature engineering, simple models can perform as well as complex ensembles.</span>
+            <span class="question">Q: PCA (Dimensionality Reduction) kyun use kiya?</span>
+            <span class="answer">Hamare paas 46 features thay. Itne zyada features model ko slow aur confused karte hain — ise 'curse of dimensionality' kehte hain. PCA ne 46 features ko compress karke 24 main components mein badal diya, aur phir bhi 95% important information retain rahi. Iska fayda yeh hua ke model 57,000 rows par 2 minute se bhi kam mein train ho gaya.<br><br><b>Simple misaal:</b> 46 subjects ki jagah 24 most important subjects padhna — time bhi bachta hai, knowledge bhi retain rehti hai.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: Feature Engineering kya hoti hai aur humne usme kya kiya?</span>
+            <span class="answer">Kuch features directly use nahi ho sakte kyunke unki values bohot uneven hoti hain. Maslan Reviews ki range 0 se millions tak hai — yeh model ko confuse karta hai. Humne <b>Log Transform</b> apply kiya taake yeh values ek manageable range mein aa jayen. Humne naye features bhi banaye jaise <b>'Reviews Per Day'</b> jo batata hai ke app kitni tezi se popular ho rahi hai, aur 'Price × Size' jese interaction features banaye.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: Stratified K-Fold Cross Validation kyun use kiya simple split ki jagah?</span>
+            <span class="answer">Simple 80/20 split mein lucky ya unlucky split ka chance hota hai — ek baar model achha score de, doosri baar bura. K-Fold mein humne data ko 3 baar alag alag tareeke se test kiya aur average score liya. Isse result reliable aur stable bana. Hamare teeno folds mein result ka fark sirf 0.005 tha — yeh prove karta hai ke 92% score lucky nahi, genuine hai.<br><br><b>Simple misaal:</b> Ek exam ki jagah teen alag alag tests lo aur average nikalo — result zyada sahi hoga.</span>
         </div>
 
-        <h2>4. Models & Ensemble Approach (The "New" Model)</h2>
-        <div class="qa-card">
-            <span class="question">Q: Did you add any new models beyond what the paper used?</span>
-            <span class="answer">Yes! While the paper used standalone Logistic Regression, Random Forest, and XGBoost, we introduced a <b>Soft Voting Ensemble Classifier</b>.</span>
-        </div>
-        <div class="qa-card">
-            <span class="question">Q: How does your Soft Voting Ensemble work?</span>
-            <span class="answer">Instead of relying on one model, the Ensemble runs LR, RF, and XGBoost simultaneously. Rather than just picking a 'High' or 'Low' class (Hard Voting), it averages the <b>predicted probabilities / confidence scores</b> of all three models (Soft Voting). This combines the unique strengths of each algorithm, leading to maximum stability.</span>
-        </div>
-
-        <h2>5. Handling "Negative" Results</h2>
-        <div class="qa-card">
-            <span class="question">Q: Why did SMOTE fail in your project?</span>
-            <span class="answer">Our ablation study showed SMOTE decreased performance. This is because our class imbalance (85:15) was manageable after IQR cleaning. SMOTE created "synthetic" samples that blurred the decision boundary, adding noise rather than value. We documented this as a <b>Negative Finding</b>, which is a sign of honest, rigorous research.</span>
-        </div>
-
-        <h2>5. Technical Hurdles</h2>
-        <div class="qa-card">
-            <span class="question">Q: What was the biggest technical challenge?</span>
-            <span class="answer">Processing 1.2 Million rows on a laptop. We solved this by optimizing data types, dropping irrelevant columns early, and using <code>n_jobs=-1</code> for parallel processing during Random Forest training.</span>
-        </div>
-
-        <h2>6. Simple Roman Urdu Explanations (For Teacher Q&A)</h2>
-        <div class="qa-card">
-            <span class="question">Q: Dataset kya hai aur Target variable kya hai?</span>
-            <span class="answer">Yeh Apple App Store ka data hai jisme 1.2 million apps ki information thi (size, price, genre, reviews). Humne sirf woh 57,862 apps rakhi jo 100 se zyada reviews rakhti thein. Humein predict karna tha ke kisi app ki rating 'High' (4.0 se upar) hogi ya 'Low'.</span>
-        </div>
-        <div class="qa-card">
-            <span class="question">Q: Original Paper mein kya masla tha?</span>
-            <span class="answer">Original paper ne sirf 7,197 apps use ki thein jo poore data ka sirf 0.6% tha. Itne kam data par model asli duniya mein kaam nahi karta aur sirf 'ratta' lagata hai (overfitting). Unhone outlier removal ya hyperparameter tuning bhi nahi ki thi.</span>
-        </div>
+        <h2>3. Models: Kya use kiya aur Kyun?</h2>
         <div class="qa-card">
             <span class="question">Q: ERF (Extra Random Forest) kya hai?</span>
-            <span class="answer">Normal Random Forest har tree mein best split dhundta hai, jabke ERF (Extra Randomized Forest) har tree mein random split karta hai. Is wajah se ERF zyada fast hota hai aur baday data par better generalize karta hai (overfitting se bachata hai). Simple misaal: 100 log kuch soch ke jawab dain aur kuch randomly soch kar, toh nayay angles samne aate hain.</span>
+            <span class="answer">ERF ka matlab hai Extra Randomized Forest. Normal Random Forest har tree mein 'best' split dhundta hai jo slow hota hai aur thoda overfit karta hai. ERF har tree mein 'random' split karta hai — zyada fast hai aur zyada generalize karta hai.<br><br><b>Simple Misaal:</b> 100 log ek sawal ka jawab dete hain — kuch sochke, kuch randomly. Phir majority vote leta hoon. Random wale log kabhi kabhi naye angle se sochte hain jo sochne wale miss kar jaate hain.</span>
         </div>
         <div class="qa-card">
-            <span class="question">Q: Aapne konsay 3 base models use kiye aur kyun?</span>
+            <span class="question">Q: Aapne aur kon kon se models use kiye aur unka fayda kya hai?</span>
             <span class="answer">
-                <b>1. Logistic Regression:</b> Baseline model. Fast aur simple. Humne prove kiya ke data saaf ho toh simple model bhi 92% F1 de sakta hai.<br>
-                <b>2. Random Forest (ERF):</b> Outliers se protected aur complex data patterns ko capture karta hai bina overfit kiye.<br>
-                <b>3. XGBoost:</b> Sab se advanced model jo 'boosting' use karta hai (har agla tree pichle ki galtiyan theek karta hai). Isne sab se accurate score (0.9209 F1) diya.
+                <b>1. Logistic Regression (LR):</b> Sabse simple model. Ek line kheenchta hai data mein — us line ke upar High rating, neeche Low rating. Yeh baseline ke tor par use kiya dekhne ke liye ke simple model kitna acha karta hai. Iska score 0.92 aya.<br><br>
+                <b>2. Random Forest (RF / ERF):</b> Bohot saare decision trees milke kaam karte hain. Har tree alag sawaal karta hai data se, phir majority vote hota hai. Yeh outliers se protected hai aur complex patterns pakad sakta hai. Iska score 0.9205 aya.<br><br>
+                <b>3. XGBoost:</b> Sabse advanced model. Ek ke baad ek tree banata hai — har agla tree pichle ki galtiyan theek karta hai (ise Boosting kehte hain). Yeh sabse accurate hota hai. Isne 0.9209 F1 diya jo highest tha.<br><br>
+                <b>4. Soft Voting Ensemble:</b> Yeh teeno (LR, RF, XGBoost) ko ek sath chalata hai, aur unke confidence scores (probabilities) ki average le kar final decision karta hai taake maximum stability milay.
             </span>
         </div>
+
+        <h2>4. Hyperparameter Tuning</h2>
         <div class="qa-card">
-            <span class="question">Q: Hyperparameter Tuning kya hoti hai aur aapne konsi use ki?</span>
-            <span class="answer">Tuning aise hai jaise chai banate waqt cheeni aur patti set karna. Humne <b>RandomizedSearchCV</b> use ki. Humne Parameters ki range di (jaise n_estimators 100 se 300) aur model ne randomly combinations try kar ke best combination select ki. GridSearch use nahi kiya kyunke wo bohot slow hota hai.</span>
+            <span class="question">Q: Hyperparameter Tuning kya hoti hai? Humne kya kiya?</span>
+            <span class="answer">Model mein kuch settings hoti hain jo training se pehle set karni parti hain. Inhe tune karna hota hai taake model default parameters par perform karne ki bajaye maximum capacity use kare.<br><br><b>Simple Misaal:</b> Socho aap chai bana rahe ho. Kitni cheeni, kitna doodh, kitni dair tak ubalna — yeh sab 'hyperparameters' hain. Agar sahi combination mile toh chai perfect banti hai! Humne Random Forest mein n_estimators (100 se 300) aur max_depth ki ranges define ki thein.</span>
         </div>
         <div class="qa-card">
-            <span class="question">Q: SMOTE (Negative Finding) ka Roman Urdu jawab:</span>
-            <span class="answer">SMOTE minority class ke artificial (fake) samples banata hai. Humne try kiya lekin F1 score 0.92 se gir kar 0.78 ho gaya. Iski wajah yeh thi ke PCA hone ke baad compressed data mein SMOTE ne ajeeb jagahon par samples bana diye jo model ko confuse kar rahe thay. Isay 'Negative Finding' ke tor par batana hamari scientific honesty ko show karta hai.</span>
+            <span class="question">Q: GridSearch ki bajaye RandomizedSearchCV kyun use kiya?</span>
+            <span class="answer">GridSearch har possible combination try karta hai — jo bohot slow hota hai. RandomizedSearchCV defined range mein se kuch random combinations (jaise 20 combinations) uthata hai aur test karta hai. Yeh fast bhi hai aur highly accurate bhi. Tuning ki wajah se humein 0.003 F1 ka izafa mila, jo 57K rows par mathematically bohot significant hai.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: Parameter aur Hyperparameter mein kya farq hai?</span>
+            <span class="answer">Parameter model khud training ke dauran seekhta hai (jaise ke tree ka split point ya linear regression ke weights). Hyperparameter wo setting hai jo hum (Data Scientists) manually training se pehle set karte hain (jaise number of trees / n_estimators).</span>
+        </div>
+
+        <h2>5. SMOTE: Negative Finding</h2>
+        <div class="qa-card">
+            <span class="question">Q: SMOTE kya hai aur aapne ise kyun reject kiya?</span>
+            <span class="answer">SMOTE ek technique hai jo minority class ke artificial (fake) samples banata hai taake data balance ho jaye. Lekin jab humne isay try kiya, toh F1 Score 0.92 se gir kar 0.78 par aagaya. <br><br><b>Reason:</b> PCA hone ke baad jo compressed features banay, usmein SMOTE ne artificial points unrealistic jagahon par bana diye jo signal ki jagah noise (kura) add kar rahe thay. Hamari class imbalance natural thi, usko artificially theek karna galat tha.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: Toh Negative finding dikhane ka kya fayda?</span>
+            <span class="answer">Science mein yeh batana bhi important hai ke kya kaam nahi kiya aur kyun. Isse doosre log same galti se bachte hain. Yeh hamari scientific integrity dikhata hai.</span>
+        </div>
+
+        <div class="qa-card">
+            <span class="question">Q: Aapne apne project mein 'Epochs' kyun nahi use kiye?</span>
+            <span class="answer">Epochs ka concept <b>Deep Learning (Neural Networks)</b> mein use hota hai jahan model poore data par bar bar loop karta hai taake weights adjust kar sake. Hamare project mein humne <b>Traditional Machine Learning</b> (Tree-based models jaise Random Forest aur XGBoost) use kiye hain. In mein epochs nahi hote, balkay 'trees' (n_estimators) aur 'iterations' (max_iter) hote hain.</span>
+        </div>
+
+        <h2>6. Final Results & Project Impacts</h2>
+        <div class="qa-card">
+            <span class="question">Q: Teeno models almost same score (92%) kyun de rahe hain?</span>
+            <span class="answer">Yahi hamare kaam ki sabse badi success hai. Jab LR, RF, aur XGBoost teeno 92% par converge karen, iska matlab hai ke performance model ke fancy hone se nahi aa rahi — hamari <b>Data Pipeline (Data Quality)</b> se aa rahi hai. Data saaf ho toh koi bhi model achha kaam karta hai.</span>
+        </div>
+        <div class="qa-card">
+            <span class="question">Q: Is project ka real-world mein kya fayda hai?</span>
+            <span class="answer">
+                <b>1. App Developers:</b> App banane se pehle predict kar sako ke yeh app popular hogi ya nahi. Agar model kehta hai "Low rating aayegi" — toh developer pehle se apni app improve kar sakta hai.<br>
+                <b>2. Apple/Google:</b> App store automatically naye apps ko rank kar sakta hai.<br>
+                <b>3. Academic Value:</b> Humne prove kiya ke Data Quality > Model Complexity. Sirf bara model zaroori nahi, saaf data zyada matter karta hai.
+            </span>
         </div>
 
         <footer style="margin-top: 50px; font-size: 0.8em; color: #888; text-align: center;">
